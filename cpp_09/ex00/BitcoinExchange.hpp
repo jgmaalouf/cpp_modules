@@ -13,24 +13,21 @@
 class BitcoinExchange
 {
 private:
-	std::map<int, float>			exchangeRateMap_;
-	std::map<std::string, float>	inputFileMap_;
-
+	std::map<int, float>	exchangeRateMap_;
+	const std::string		file_;
 
 	void	parseData();
-	void	parseInput(std::string& filename);
 public:
-	BitcoinExchange(std::string filename);
+	BitcoinExchange(const std::string& filename);
 	BitcoinExchange(const BitcoinExchange& arg);
 	~BitcoinExchange();
 
 	BitcoinExchange&	operator=(const BitcoinExchange& rhs);
 
-	std::map<int, float> 			getExchangeRate() const;
-	std::map<std::string, float> 	getInputFile() const;
+	const std::string&	getFile() const;
 
 	float	 matchDate(int date);
-	void	printMap(int map); // DEBUGGING
+	void	printMap(); // DEBUGGING
 
 };
 std::ostream&	operator<<(std::ostream& out, BitcoinExchange& rhs);
