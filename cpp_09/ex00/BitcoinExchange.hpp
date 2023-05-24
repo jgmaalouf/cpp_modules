@@ -6,7 +6,7 @@
 #include <map>
 
 #define BADINPUT	-1 // date is not valid
-#define BADYEAR		-2 // year < 2009
+// #define BADYEAR		-2 // year < 2009
 #define NEGATIVE 	-3 // input number < 0
 #define TOOBIG		-4 // input number > 1000
 
@@ -26,8 +26,7 @@ public:
 
 	const std::string&	getFile() const;
 
-	float	 matchDate(int date);
-	void	printMap(); // DEBUGGING
+	float	matchDate(int date);
 
 };
 std::ostream&	operator<<(std::ostream& out, BitcoinExchange& rhs);

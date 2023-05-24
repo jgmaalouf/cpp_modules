@@ -64,10 +64,39 @@ int	parseDate(std::string date)
 		else if (day > 28)
 			return BADINPUT;
 	}
-	if (year < 2009)
-		return BADYEAR;
+	// if (year < 2009)
+	// 	return BADYEAR;
 	return 10000 * year + 100 * month + day;
 }
+
+// int parseDate(const std::string& date) // ChatGPT refactor
+// {
+//     std::istringstream iss(date);
+//     int year, month, day;
+//     char delimiter;
+
+//     if (!(iss >> year >> delimiter >> month >> delimiter >> day) || delimiter != '-')
+//         return BADINPUT;
+
+//     if (year < 1000 || year > 9999 || month < 1 || month > 12 || day < 1 || day > 31)
+//         return BADINPUT;
+
+//     if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30)
+//         return BADINPUT;
+
+//     if (month == 2)
+//     {
+//         if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) // leap year
+//         {
+//             if (day > 29)
+//                 return BADINPUT;
+//         }
+//         else if (day > 28)
+//             return BADINPUT;
+//     }
+
+//     return 10000 * year + 100 * month + day;
+// }
 
 void BitcoinExchange::parseData()
 {
@@ -90,8 +119,8 @@ std::string setError(int err, const std::string& date)
 {
 	if (err == BADINPUT)
 		return "Error: bad input => " + date;
-	if (err == BADYEAR)
-		return "Error: year less than 2009 => " + date;
+	// if (err == BADYEAR)
+	// 	return "Error: year less than 2009 => " + date;
 	return "";
 }
 
@@ -171,14 +200,4 @@ std::ostream& operator<<(std::ostream& out, BitcoinExchange& rhs)
 		std::cerr << e.what() << '\n';
 	}
 	return out;
-}
-
-void	BitcoinExchange::printMap()
-{
-	std::map<int, float>::iterator it = exchangeRateMap_.begin();
-	while (it != exchangeRateMap_.end())
-	{
-		std::cout << it->first << "," << it->second << std::endl;
-		it++;
-	}
 }
