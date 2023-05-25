@@ -12,11 +12,10 @@ int main(int argc, char* argv[])
 {
 	if (argc > 2)
 		return badInput();
-
 	try
 	{
 		RPN obj(argv[1]);
-		std::cout << obj << std::endl;
+		std::cout << obj.calculate() << std::endl;
 	}
 	catch(const std::exception& e)
 	{

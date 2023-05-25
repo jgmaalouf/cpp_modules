@@ -4,12 +4,13 @@
 #include <iostream>
 #include <sstream>
 #include <stack>
+#include <queue>
 
 
 class RPN
 {
 private:
-	std::stack<int>	inputNumbers_;
+	std::queue<int>	expression_;
 public:
 	RPN(const std::string& input);
 	RPN(const RPN& arg);
