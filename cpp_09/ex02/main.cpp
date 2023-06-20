@@ -1,4 +1,4 @@
-#include <PmergeMe.hpp>
+#include "PmergeMe.hpp"
 #include <iostream>
 #include <climits>
 
@@ -33,7 +33,7 @@ void parseArg(char* arg, std::vector<int>& vecIntSq, std::list<int>& lsIntSq)
 	
 	val = std::strtol(arg, &endptr, 10);
 	parseInt(val, vecIntSq, lsIntSq);
-	while (endptr != '\0')
+	while (*endptr != '\0')
 	{
 		val = std::strtol(endptr, &endptr, 10);
 		parseInt(val, vecIntSq, lsIntSq);

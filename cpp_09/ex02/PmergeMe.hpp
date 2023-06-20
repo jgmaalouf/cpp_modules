@@ -10,7 +10,7 @@ private:
 	long             lsSortTime;  // May change from long
 
 	void             sortVec();
-	void             sortLs();
+	// void             sortLs();
 
 	PmergeMe();
 public:
@@ -21,4 +21,10 @@ public:
 	PmergeMe operator=(const PmergeMe& rhs);
 	
 	void     sort();
+};
+
+struct pairs
+{
+	int main; // The main is the larger between the two
+	int pend; // The pend is the number pending to be inserted
 };
