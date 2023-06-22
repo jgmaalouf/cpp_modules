@@ -85,22 +85,30 @@ std::vector<int> extractChain(intPairVec pairVec, int chainType)
 	return chain;
 }
 
-std::vector<int>::iterator binarySearch(int pend, std::vector<int>& main, size_t high)
+void binaryInsert(int pend, std::vector<int>& main, size_t high)
 {
 	std::vector<int>::iterator pos = main.begin();
 
-	size_t low = 0;
+	int low = 0;
 	while (low < high)
 	{
-		size_t mid = (low + high) / 2;
-		if (main[mid] == pend)
-			return pos + mid;
-		else if (main[mid] > pend)
+		int mid = (low + high) / 2;
+		if (main[mid] == pend) // Comparison
+		{
+			main.insert(pos + mid, pend);
+			return ;
+		}
+		else if (main[mid] > pend) // Comparison
 			high = mid - 1;
 		else
 			low = mid + 1;
 	}
-	return pos + low;
+	// low == high
+	if (pend < main[low]) // Comparison
+		main.insert(pos + low, pend);
+	else
+		main.insert(pos + low + 1, pend);
+	return ;
 }
 
 
@@ -118,14 +126,7 @@ void binaryInsertionSort(std::vector<int>& pend, std::vector<int>& main)
 	{
 		while (current > prev)
 		{
-			std::vector<int>::iterator pos = binarySearch(pend[current - 1], main, high - 1);
-			main.insert(pos + 1, pend[current - 1]);
-			
-			std::cout << "Main:\t";
-			for (size_t i = 0; i < main.size(); i++)
-				std::cout << main[i] << ' ';
-			std::cout << std::endl;
-			
+			binaryInsert(pend[current - 1], main, high - 1);
 			current--;
 		}
 		current = next;
@@ -136,11 +137,10 @@ void binaryInsertionSort(std::vector<int>& pend, std::vector<int>& main)
 
 	// When we exit, we still have one round of insertions to do
 	current = pendSize;
-	high = main.size() - 1;
+	high = main.size();
 	while (current > prev)
 	{
-		std::vector<int>::iterator pos = binarySearch(pend[current - 1], main, high);
-		main.insert(pos + 1, pend[current - 1]);
+		binaryInsert(pend[current - 1], main, high - 1);
 		current--;
 	}
 }

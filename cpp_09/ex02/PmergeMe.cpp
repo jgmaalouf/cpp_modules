@@ -33,6 +33,7 @@ void PmergeMe::sort()
 	std::cout << "Final:\t";
 	for (size_t i = 0; i < inputSize; i++)
 		std::cout << vecIntSeq_[i] << ' ';
+	std::cout << std::endl;
 
 	// std::cout << std::endl << "Time to process a range of "
 	// 	<< std::setw(7) << inputSize;
@@ -57,16 +58,6 @@ void PmergeMe::sortVec()
 	//  that we need to insert into the main chain.
 	std::vector<int> main = extractChain(pairVec, SORTED);
 	std::vector<int> pend = extractChain(pairVec, UNSORTED);
-
-	std::cout << "Main:\t";
-	for (size_t i = 0; i < main.size(); i++)
-		std::cout << main[i] << ' ';
-	std::cout << std::endl;
-	std::cout << "Pend:\t";
-	for (size_t i = 0; i < pend.size(); i++)
-		std::cout << pend[i] << ' ';
-	std::cout << std::endl;
-	std::cout << std::endl;
 
 	// Since the first int in the pend chain is always less than the first int in the main
 	//  we add it to the main chain
