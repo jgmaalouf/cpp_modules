@@ -30,6 +30,7 @@ void PmergeMe::sort()
 	// std::cout << std::endl << "After:\t";
 	sortVec();
 	// sortLs();
+	std::cout << "Final:\t";
 	for (size_t i = 0; i < inputSize; i++)
 		std::cout << vecIntSeq_[i] << ' ';
 
@@ -57,8 +58,15 @@ void PmergeMe::sortVec()
 	std::vector<int> main = extractChain(pairVec, SORTED);
 	std::vector<int> pend = extractChain(pairVec, UNSORTED);
 
-	// We make a vector of iterators which point to the integers in the main chain
-	std::vector<std::vector<int>::iterator> mainIters = createIters(main);
+	std::cout << "Main:\t";
+	for (size_t i = 0; i < main.size(); i++)
+		std::cout << main[i] << ' ';
+	std::cout << std::endl;
+	std::cout << "Pend:\t";
+	for (size_t i = 0; i < pend.size(); i++)
+		std::cout << pend[i] << ' ';
+	std::cout << std::endl;
+	std::cout << std::endl;
 
 	// Since the first int in the pend chain is always less than the first int in the main
 	//  we add it to the main chain
@@ -66,7 +74,7 @@ void PmergeMe::sortVec()
 
 	// Insert the pend integers into main using the Jacobsthal indexing and binary search.
 	//  The mainIters are for not losing track of the linked indexing between main and pend when main grows in size
-	binaryInsertionSort(pend, main, mainIters);
+	binaryInsertionSort(pend, main);
 
 	// Still have to check if the vecIntSeq_ is not empty. If not there is one element left in it to insert
 	vecIntSeq_ = main;

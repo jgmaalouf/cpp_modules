@@ -85,37 +85,11 @@ std::vector<int> extractChain(intPairVec pairVec, int chainType)
 	return chain;
 }
 
-intVecIterator createIters(std::vector<int>& intVec)
-{
-	intVecIterator intVecIters;
-
-	std::vector<int>::iterator it;
-	std::vector<int>::iterator end = intVec.end();
-	for (it = intVec.begin(); it < end; it++)
-		intVecIters.push_back(it);
-
-	return intVecIters;
-}
-
-#include <iostream>
-std::vector<int>::iterator binarySearch(int pend, std::vector<int>& main, std::vector<int>::iterator& upperBound)
+std::vector<int>::iterator binarySearch(int pend, std::vector<int>& main, size_t high)
 {
 	std::vector<int>::iterator pos = main.begin();
 
-	size_t size = std::distance(main.begin(), upperBound);
 	size_t low = 0;
-	size_t high = size;
-
-
-
-	// I have a problem understanding iterators
-	while (pos < upperBound)
-	{
-		std::cout << *pos << std::endl;
-		pos++;
-	}
-	exit(0);
-
 	while (low < high)
 	{
 		size_t mid = (low + high) / 2;
@@ -129,9 +103,12 @@ std::vector<int>::iterator binarySearch(int pend, std::vector<int>& main, std::v
 	return pos + low;
 }
 
-void binaryInsertionSort(std::vector<int>& pend, std::vector<int>& main, intVecIterator& mainIters)
+
+#include <iostream>
+void binaryInsertionSort(std::vector<int>& pend, std::vector<int>& main)
 {
 	size_t current = 3; // Starting at the third Jacobsthal index
+	size_t high = 3;    // Limit of binary search in main
 	size_t next = jacobsthalIndexGen(current, NEXT);
 	size_t prev = jacobsthalIndexGen(current, PREV);
 
@@ -141,21 +118,29 @@ void binaryInsertionSort(std::vector<int>& pend, std::vector<int>& main, intVecI
 	{
 		while (current > prev)
 		{
-			std::vector<int>::iterator pos = binarySearch(pend[current - 1], main, mainIters[current - 2]);
-			main.insert(pos, pend[current - 1]);
+			std::vector<int>::iterator pos = binarySearch(pend[current - 1], main, high - 1);
+			main.insert(pos + 1, pend[current - 1]);
+			
+			std::cout << "Main:\t";
+			for (size_t i = 0; i < main.size(); i++)
+				std::cout << main[i] << ' ';
+			std::cout << std::endl;
+			
 			current--;
 		}
 		current = next;
 		next = jacobsthalIndexGen(current, NEXT);
 		prev = jacobsthalIndexGen(current, PREV);
+		high = high * 2 + 1;
 	}
 
 	// When we exit, we still have one round of insertions to do
 	current = pendSize;
+	high = main.size() - 1;
 	while (current > prev)
 	{
-		std::vector<int>::iterator pos = binarySearch(pend[current - 1], main, mainIters[current - 2]);
-		main.insert(pos, pend[current - 1]);
+		std::vector<int>::iterator pos = binarySearch(pend[current - 1], main, high);
+		main.insert(pos + 1, pend[current - 1]);
 		current--;
 	}
 }

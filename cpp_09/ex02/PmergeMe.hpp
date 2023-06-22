@@ -31,7 +31,6 @@ size_t jacobsthalIndexGen(size_t current, int iteration);
 
 /* Vector sorting utils */
 typedef std::vector<std::pair<int, int> > intPairVec;
-typedef std::vector<std::vector<int>::iterator> intVecIterator;
 #define SORTED 0
 #define UNSORTED 1
 
@@ -39,7 +38,6 @@ intPairVec       createPairs(std::vector<int> vecIntSeq);
 intPairVec       mergePairs(intPairVec a, intPairVec b);
 intPairVec       mergesortPairs(intPairVec& pairVec, int n);
 std::vector<int> extractChain(intPairVec pairVec, int chainType);
-intVecIterator   createIters(std::vector<int>& intVec);
-void             binaryInsertionSort(std::vector<int>& pend, std::vector<int>& main, intVecIterator& mainIters);
+void             binaryInsertionSort(std::vector<int>& pend, std::vector<int>& main);
 
 /* Deque sorting utils */
