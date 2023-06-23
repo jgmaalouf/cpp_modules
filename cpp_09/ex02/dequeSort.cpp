@@ -1,27 +1,27 @@
 #include "PmergeMe.hpp"
 
-intPairVec createPairs(std::vector<int>& vecIntSeq)
+intPairDeque createPairs(std::deque<int>& dequeIntSeq)
 {
 	// Here, in a loop, I pop out 2 integers from the sequence and
-	//  store them into a pair then store the pair into the pairVec
-	intPairVec pairVec;
-	std::vector<int>::iterator it = vecIntSeq.begin();
-	while (it != vecIntSeq.end() && (it + 1) != vecIntSeq.end())
+	//  store them into a pair then store the pair into the pairDeque
+	intPairDeque pairDeque;
+
+	while (dequeIntSeq.begin() != dequeIntSeq.end() && (dequeIntSeq.begin() + 1) != dequeIntSeq.end())
 	{
 		std::pair<int, int> pair;
-		pair.first = *it; vecIntSeq.erase(it);
-		pair.second = *it; vecIntSeq.erase(it);
+		pair.first = *(dequeIntSeq.begin()); dequeIntSeq.pop_front();
+		pair.second = *(dequeIntSeq.begin()); dequeIntSeq.pop_front();
 		if (pair.second > pair.first)
 			std::swap(pair.first, pair.second);
 		g_comparisonCounter++;
-		pairVec.push_back(pair);
+		pairDeque.push_back(pair);
 	}
-	return pairVec;
+	return pairDeque;
 }
 
-intPairVec mergePairs(intPairVec a, intPairVec b)
+intPairDeque mergePairs(intPairDeque a, intPairDeque b)
 {
-	intPairVec c;
+	intPairDeque c;
 
 	while(!a.empty() && !b.empty())
 	{
@@ -52,18 +52,17 @@ intPairVec mergePairs(intPairVec a, intPairVec b)
 	return c;
 }
 
-intPairVec mergesortPairs(intPairVec& pairVec, int n)
+intPairDeque mergesortPairs(intPairDeque& pairDeque, int n)
 {
 	if (n == 1)
-		return pairVec;
-
-	intPairVec arr1;
+		return pairDeque;
+	intPairDeque arr1;
 	for (size_t i = 0; i < n / 2; i++)
-		arr1.push_back(pairVec[i]);
+		arr1.push_back(pairDeque[i]);
 
-	intPairVec arr2;
+	intPairDeque arr2;
 	for (size_t i = n / 2; i < n; i++)
-		arr2.push_back(pairVec[i]);
+		arr2.push_back(pairDeque[i]);
 
 	arr1 = mergesortPairs(arr1, arr1.size());
 	arr2 = mergesortPairs(arr2, arr2.size());
@@ -71,26 +70,26 @@ intPairVec mergesortPairs(intPairVec& pairVec, int n)
 	return mergePairs(arr1, arr2);
 }
 
-std::vector<int> extractChain(const intPairVec& pairVec, int chainType)
+std::deque<int> extractChain(const intPairDeque& pairDeque, int chainType)
 {
-	std::vector<int> chain;
-	intPairVec::const_iterator it;
-	intPairVec::const_iterator end = pairVec.end();
+	std::deque<int> chain;
+	intPairDeque::const_iterator it;
+	intPairDeque::const_iterator end = pairDeque.end();
 
 	if (chainType == SORTED)
-		for (it = pairVec.begin(); it < end; it++)
+		for (it = pairDeque.begin(); it < end; it++)
 			chain.push_back((*it).first);
 
 	else if (chainType == UNSORTED)
-		for (it = pairVec.begin(); it < end; it++)
+		for (it = pairDeque.begin(); it < end; it++)
 			chain.push_back((*it).second);
 
 	return chain;
 }
 
-void binaryInsert(int pend, std::vector<int>& main, int high)
+void binaryInsert(int pend, std::deque<int>& main, int high)
 {
-	std::vector<int>::iterator pos = main.begin();
+	std::deque<int>::iterator pos = main.begin();
 
 	int low = 0;
 	while (low < high)
@@ -116,7 +115,7 @@ void binaryInsert(int pend, std::vector<int>& main, int high)
 	return ;
 }
 
-void binaryInsertionSort(const std::vector<int>& pend, std::vector<int>& main)
+void binaryInsertionSort(const std::deque<int>& pend, std::deque<int>& main)
 {
 	size_t current = 3; // Starting at the third Jacobsthal index
 	size_t high = 3;    // Limit of binary search in main

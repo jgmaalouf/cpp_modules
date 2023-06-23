@@ -1,6 +1,6 @@
 NAME = PmergeMe
 
-SRC = main.cpp PmergeMe.cpp vecSort.cpp
+SRC = main.cpp PmergeMe.cpp vecSort.cpp dequeSort.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

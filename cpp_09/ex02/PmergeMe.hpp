@@ -1,16 +1,24 @@
 #include <vector>
 #include <deque>
 
+extern size_t g_comparisonCounter;
+
 class PmergeMe
 {
 private:
 	std::vector<int> vecIntSeq_;
-	std::deque<int>   dequeIntSeq_;
-	long             vecSortTime; // May change from long
-	long             dequeSortTime;  // May change from long
+	std::deque<int>  dequeIntSeq_;
+	double           vecSortTime_;
+	double           dequeSortTime_;
+
+	size_t           vecCompCount_;
+	size_t           dequeCompCount_;
+
+	void             vecSortCheck();
+	void             dequeSortCheck();
 
 	void             sortVec();
-	// void             sortDeque();
+	void             sortDeque();
 
 	PmergeMe();
 public:
@@ -34,10 +42,21 @@ typedef std::vector<std::pair<int, int> > intPairVec;
 #define SORTED 0
 #define UNSORTED 1
 
-intPairVec       createPairs(std::vector<int> vecIntSeq);
+intPairVec       createPairs(std::vector<int>& vecIntSeq);
 intPairVec       mergePairs(intPairVec a, intPairVec b);
 intPairVec       mergesortPairs(intPairVec& pairVec, int n);
-std::vector<int> extractChain(intPairVec pairVec, int chainType);
-void             binaryInsertionSort(std::vector<int>& pend, std::vector<int>& main);
+std::vector<int> extractChain(const intPairVec& pairVec, int chainType);
+void             binaryInsertionSort(const std::vector<int>& pend, std::vector<int>& main);
+void             binaryInsert(int pend, std::vector<int>& main, int high);
 
 /* Deque sorting utils */
+typedef std::deque<std::pair<int, int> > intPairDeque;
+#define SORTED 0
+#define UNSORTED 1
+
+intPairDeque     createPairs(std::deque<int>& dequeIntSeq);
+intPairDeque     mergePairs(intPairDeque a, intPairDeque b);
+intPairDeque     mergesortPairs(intPairDeque& pairVec, int n);
+std::deque<int>  extractChain(const intPairDeque& pairVec, int chainType);
+void             binaryInsertionSort(const std::deque<int>& pend, std::deque<int>& main);
+void             binaryInsert(int pend, std::deque<int>& main, int high);
