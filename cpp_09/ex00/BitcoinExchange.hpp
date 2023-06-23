@@ -5,31 +5,31 @@
 #include <sstream>
 #include <map>
 
-#define BADINPUT	-1 // date is not valid
-// #define BADYEAR		-2 // year < 2009
-#define NEGATIVE 	-3 // input number < 0
-#define TOOBIG		-4 // input number > 1000
+#define BADINPUT -1 // date is not valid
+#define BADYEAR  -2 // year < 2009
+#define NEGATIVE -3 // input number < 0
+#define TOOBIG   -4 // input number > 1000
 
 class BitcoinExchange
 {
 private:
-	std::map<int, float>	exchangeRateMap_;
-	const std::string		file_;
+	std::map<int, float> exchangeRateMap_;
+	std::string          file_;
 
-	void	parseData();
+	void parseData();
 public:
 	BitcoinExchange(const std::string& filename);
 	BitcoinExchange(const BitcoinExchange& arg);
 	~BitcoinExchange();
 
-	BitcoinExchange&	operator=(const BitcoinExchange& rhs);
+	BitcoinExchange& operator=(const BitcoinExchange& rhs);
 
-	const std::string&	getFile() const;
+	const std::string& getFile() const;
 
-	float	matchDate(int date);
+	float matchDate(int date);
 
 };
-std::ostream&	operator<<(std::ostream& out, BitcoinExchange& rhs);
+std::ostream& operator<<(std::ostream& out, BitcoinExchange& rhs);
 
 template <typename T>
 std::string toString(const T& value)

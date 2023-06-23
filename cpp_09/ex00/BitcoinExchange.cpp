@@ -12,7 +12,6 @@ BitcoinExchange::BitcoinExchange(const std::string& filename)
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
-		std::cout << "usage: ./btc <filename>" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }
@@ -28,6 +27,7 @@ BitcoinExchange::~BitcoinExchange() {}
 BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& rhs)
 {
 	exchangeRateMap_ = rhs.exchangeRateMap_;
+	file_ = rhs.file_;
 	return *this;
 }
 
@@ -64,39 +64,33 @@ int	parseDate(std::string date)
 		else if (day > 28)
 			return BADINPUT;
 	}
-	// if (year < 2009)
-	// 	return BADYEAR;
+	if (year < 2009)
+		return BADYEAR;
 	return 10000 * year + 100 * month + day;
 }
 
-// int parseDate(const std::string& date) // ChatGPT refactor
-// {
-//     std::istringstream iss(date);
-//     int year, month, day;
-//     char delimiter;
+void validateLine(const std::string& buffer)
+{
+	size_t commaCount = 0;
+	size_t dashCount = 0;
+	size_t size = buffer.size();
+	for (size_t i = 0; i < size; i++)
+	{
+		if (buffer[i] == ',')
+			commaCount++;
+		else if (buffer[i] == '-')
+			dashCount++;
+		if (isdigit(buffer[i]) || buffer[i] == '-'
+			|| buffer[i] == ',' || buffer[i] == '.')
+			continue;
+		throw std::runtime_error("bad data file");
+	}
+	if (commaCount != 1)
+		throw std::runtime_error("bad data file");
+	if (dashCount != 2)
+		throw std::runtime_error("bad data file");
 
-//     if (!(iss >> year >> delimiter >> month >> delimiter >> day) || delimiter != '-')
-//         return BADINPUT;
-
-//     if (year < 1000 || year > 9999 || month < 1 || month > 12 || day < 1 || day > 31)
-//         return BADINPUT;
-
-//     if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30)
-//         return BADINPUT;
-
-//     if (month == 2)
-//     {
-//         if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) // leap year
-//         {
-//             if (day > 29)
-//                 return BADINPUT;
-//         }
-//         else if (day > 28)
-//             return BADINPUT;
-//     }
-
-//     return 10000 * year + 100 * month + day;
-// }
+}
 
 void BitcoinExchange::parseData()
 {
@@ -104,12 +98,24 @@ void BitcoinExchange::parseData()
 	if (!file.is_open())
 		throw std::runtime_error("bad file");
 	std::string buffer;
+	std::getline(file, buffer);
+	if (buffer != "date,exchange_rate")
+		throw std::runtime_error("unaccepted .csv");
+
 	while (std::getline(file, buffer))
 	{
-		int date = parseDate(buffer.substr(0, buffer.find(',')));
-		float value = strtof(buffer.substr(buffer.find(',') + 1).c_str(), NULL);
+		validateLine(buffer);
+
+		size_t commaPos = buffer.find(',');
+
+		int date = parseDate(buffer.substr(0, commaPos));
+		if (date < 0)
+			throw std::runtime_error("bad data file");
+
+		float value = strtof(buffer.substr(commaPos + 1).c_str(), NULL);
 		if (errno == ERANGE)
 			throw std::runtime_error("bad value");
+
 		std::pair<int, float> dateValue(date, value);
 		exchangeRateMap_.insert(dateValue);
 	}
@@ -119,8 +125,8 @@ std::string setError(int err, const std::string& date)
 {
 	if (err == BADINPUT)
 		return "Error: bad input => " + date;
-	// if (err == BADYEAR)
-	// 	return "Error: year less than 2009 => " + date;
+	if (err == BADYEAR)
+		return "Error: year less than 2009 => " + date;
 	return "";
 }
 
@@ -158,7 +164,11 @@ const std::string& BitcoinExchange::getFile() const
 
 std::pair<int, float> parseDateValue(std::string& line)
 {
-	int date = parseDate(line.substr(0, line.find_first_of(' ')));
+	size_t space = line.find_first_of(' ');
+	if (space == std::string::npos)
+		throw std::runtime_error("bad formatting");
+
+	int date = parseDate(line.substr(0, space));
 	float value = strtof(line.substr(line.find_last_of(' ') + 1).c_str(), NULL);
 	if (errno == ERANGE)
 		throw std::runtime_error("bad value");
