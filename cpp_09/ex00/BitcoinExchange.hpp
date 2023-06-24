@@ -5,10 +5,13 @@
 #include <sstream>
 #include <map>
 
-#define BADINPUT -1 // date is not valid
-#define BADYEAR  -2 // year < 2009
-#define NEGATIVE -3 // input number < 0
-#define TOOBIG   -4 // input number > 1000
+#define BADINPUT  -1 // input is badly formatted
+#define BADYEAR   -2 // year < 2009
+#define NEGATIVE  -3 // input number < 0
+#define TOOBIG    -4 // input number > 1000
+#define OVFLOW    -5 // input number overflowed
+#define BADFILE   -6 // file
+#define BADFORMAT -7 // format unaccepted
 
 class BitcoinExchange
 {
@@ -17,6 +20,8 @@ private:
 	std::string          file_;
 
 	void parseData();
+	float matchDate(int date);
+	const std::string& getFile() const;
 public:
 	BitcoinExchange(const std::string& filename);
 	BitcoinExchange(const BitcoinExchange& arg);
@@ -24,19 +29,14 @@ public:
 
 	BitcoinExchange& operator=(const BitcoinExchange& rhs);
 
-	const std::string& getFile() const;
-
-	float matchDate(int date);
-
+	void calculateRates();
 };
-std::ostream& operator<<(std::ostream& out, BitcoinExchange& rhs);
 
-template <typename T>
-std::string toString(const T& value)
-{
-	std::stringstream ss;
-	ss << value;
-	return ss.str();
-}
+/* Utils */
 
+void validateLine(const std::string& buffer);
+int  parseDate(std::string date);
+void setError(int err, const std::string& date);
+void setError(int err);
+bool prepInputLine(std::string& buffer);
 #endif

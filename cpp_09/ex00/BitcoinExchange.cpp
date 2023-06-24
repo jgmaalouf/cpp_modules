@@ -1,5 +1,4 @@
 #include "BitcoinExchange.hpp"
-
 #include <fstream>
 
 BitcoinExchange::BitcoinExchange(const std::string& filename)
@@ -31,67 +30,6 @@ BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& rhs)
 	return *this;
 }
 
-int	parseDate(std::string date)
-{
-	std::string dateCpy = date;
-	if (dateCpy.substr(0, dateCpy.find_first_of('-')).length() != 4)
-		return BADINPUT;
-	for (size_t i = 0; i < 2; i++)
-	{
-		dateCpy = dateCpy.substr(dateCpy.find_first_of('-') + 1);
-		if (dateCpy.substr(0, dateCpy.find_first_of('-')).length() != 2)
-			return BADINPUT;
-	}
-	int year, month, day;
-	if (std::sscanf(date.c_str(), "%d-%d-%d", &year, &month, &day) != 3)
-	{
-		return BADINPUT;
-	}
-	if (month < 1 || month > 12)
-		return BADINPUT;
-	if (day < 0 || day > 31)
-		return BADINPUT;
-	if (month == 4 || month == 6 || month == 9 || month == 11)
-		if (day > 30)
-			return BADINPUT;
-	if (month == 2 )
-	{
-		if (year % 4 == 0) // leap year
-		{
-			if (day > 29)
-				return BADINPUT;
-		}
-		else if (day > 28)
-			return BADINPUT;
-	}
-	if (year < 2009)
-		return BADYEAR;
-	return 10000 * year + 100 * month + day;
-}
-
-void validateLine(const std::string& buffer)
-{
-	size_t commaCount = 0;
-	size_t dashCount = 0;
-	size_t size = buffer.size();
-	for (size_t i = 0; i < size; i++)
-	{
-		if (buffer[i] == ',')
-			commaCount++;
-		else if (buffer[i] == '-')
-			dashCount++;
-		if (isdigit(buffer[i]) || buffer[i] == '-'
-			|| buffer[i] == ',' || buffer[i] == '.')
-			continue;
-		throw std::runtime_error("bad data file");
-	}
-	if (commaCount != 1)
-		throw std::runtime_error("bad data file");
-	if (dashCount != 2)
-		throw std::runtime_error("bad data file");
-
-}
-
 void BitcoinExchange::parseData()
 {
 	std::ifstream file("data.csv");
@@ -121,24 +59,6 @@ void BitcoinExchange::parseData()
 	}
 }
 
-std::string setError(int err, const std::string& date)
-{
-	if (err == BADINPUT)
-		return "Error: bad input => " + date;
-	if (err == BADYEAR)
-		return "Error: year less than 2009 => " + date;
-	return "";
-}
-
-std::string setError(int err)
-{
-	if (err == NEGATIVE)
-		return "Error: not a positive number.";
-	if (err == TOOBIG)
-		return "Error: too large a number.";
-	return "";
-}
-
 float BitcoinExchange::matchDate(int date)
 {
 	std::map<int, float>::iterator exchangeRateIt = exchangeRateMap_.lower_bound(date);
@@ -156,7 +76,6 @@ float BitcoinExchange::matchDate(int date)
 	return exchangeRateIt->second;
 }
 
-
 const std::string& BitcoinExchange::getFile() const
 {
 	return file_;
@@ -164,50 +83,48 @@ const std::string& BitcoinExchange::getFile() const
 
 std::pair<int, float> parseDateValue(std::string& line)
 {
-	size_t space = line.find_first_of(' ');
-	if (space == std::string::npos)
-		throw std::runtime_error("bad formatting");
+	size_t pipePos = line.find('|');
+	std::string dateStr = line.substr(0, pipePos);
 
-	int date = parseDate(line.substr(0, space));
-	float value = strtof(line.substr(line.find_last_of(' ') + 1).c_str(), NULL);
-	if (errno == ERANGE)
-		throw std::runtime_error("bad value");
+	int date = parseDate(dateStr);
+	float value = strtof(line.substr(pipePos + 1).c_str(), NULL);
+
+	if (date < 0)
+		setError(date, dateStr);
+	else if (errno == ERANGE)
+		setError(OVFLOW);
+	else if (value < 0)
+		setError(NEGATIVE);
+	else if (value > 1000)
+		setError(TOOBIG);
 	std::pair<int, float> dateValue(date, value);
 	return dateValue;
 }
 
-std::ostream& operator<<(std::ostream& out, BitcoinExchange& rhs)
+void BitcoinExchange::calculateRates()
 {
-	try
+	std::ifstream file(getFile());
+	if (!file.is_open())
+		return setError(BADFILE);
+
+	std::string buffer;
+	std::getline(file, buffer);
+	if (buffer != "date | value")
+		return setError(BADFORMAT);
+	while (std::getline(file, buffer))
 	{
-		std::ifstream file(rhs.getFile());
-		if (!file.is_open())
-			throw std::runtime_error("bad file");
-		std::string buffer;
-		while (std::getline(file, buffer))
+		if (!prepInputLine(buffer))
 		{
-			std::string dateStr = buffer.substr(0, buffer.find_first_of(' '));
-			std::pair<int, float> dateValue = parseDateValue(buffer);
-			if (dateValue.first < 0)
-			{
-				out << setError(dateValue.first, dateStr) << std::endl;
-				continue;
-			}
-			if (dateValue.second < 0)
-				out << setError(NEGATIVE) << std::endl;
-			else if (dateValue.second > 1000)
-				out << setError(TOOBIG) << std::endl;
-			else
-			{
-				float exchangeVal = rhs.matchDate(dateValue.first);
-					out << dateStr << " => " << dateValue.second
-						<< " = " << dateValue.second * exchangeVal << std::endl;
-			}
+			setError(BADINPUT, buffer);
+			continue;
 		}
+		std::pair<int, float> dateValue = parseDateValue(buffer);
+		if (dateValue.first < 0 || dateValue.second < 0 || dateValue.second > 1000)
+			continue;
+
+		std::string dateStr = buffer.substr(0, buffer.find('|'));
+		float exchangeVal = matchDate(dateValue.first);
+		std::cout << dateStr << " => " << dateValue.second
+			<< " = " << dateValue.second * exchangeVal << std::endl;
 	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-	return out;
 }

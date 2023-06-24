@@ -13,5 +13,5 @@ int main(int argc, char* argv[])
 		return badInput();
 
 	BitcoinExchange obj(argv[1]);
-	std::cout << obj << std::endl;
+	obj.calculateRates();
 }
