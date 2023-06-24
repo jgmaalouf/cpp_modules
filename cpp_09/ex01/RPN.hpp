@@ -6,19 +6,18 @@
 #include <stack>
 #include <queue>
 
-
 class RPN
 {
 private:
-	std::queue<int>	expression_;
+	std::string	expression_;
 public:
 	RPN(const std::string& input);
 	RPN(const RPN& arg);
 	~RPN();
 
-	RPN&	operator=(const RPN& rhs);
+	RPN& operator=(const RPN& rhs);
 
-	int		calculate();
+	int calculate();
 };
 
 #endif
